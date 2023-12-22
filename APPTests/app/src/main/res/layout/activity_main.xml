@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_color"
+    tools:ignore="ExtraText">
+
+
+    <Button
+        android:id="@+id/toggleButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:background="#d4af37"
+        android:text="Toggle Device" />
+
+    <Button
+        android:id="@+id/BTActivate"
+        android:layout_width="106dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_centerInParent="false"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="135dp"
+        android:layout_marginTop="270dp"
+        android:background="#d4af37"
+        android:text="Bluetooth" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize = "50dp"
+        android:textColor="@color/white"
+        android:layout_below="@id/toggleButton"
+        android:layout_centerHorizontal="true"
+        android:paddingTop="16dp" />
+
+    <TextView
+        android:id="@+id/btList"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="34dp"
+        android:layout_marginBottom="135dp"
+        android:text="BTList: "
+        android:textColor="@color/white" />
+
+    <Button
+        android:id="@+id/httpButton"
+        android:layout_width="105dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="134dp"
+        android:layout_marginTop="196dp"
+        android:background="#d4af37"
+        android:text="HTTP" />
+
+</RelativeLayout>
+

@@ -52,6 +52,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var enableBluetoothLauncher: ActivityResultLauncher<Intent>
     private lateinit var nsdManager: NsdManager
     private lateinit var server: NanoHTTPD
+    private lateinit var httpServer: AndroidHttpServer
 
     private val deviceDiscoveryReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -261,8 +262,6 @@ class MainActivity : ComponentActivity() {
 
     }
 
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -281,7 +280,8 @@ class MainActivity : ComponentActivity() {
 
         val button: Button = findViewById<Button>(R.id.toggleButton)
         val btButton: Button = findViewById<Button>(R.id.BTActivate) // Find the button by its ID
-        val httpButton: Button = findViewById<Button>(R.id.httpButton)
+        val httpButtonSend: Button = findViewById<Button>(R.id.httpButtonSend)
+        val httpButtonReceive: Button = findViewById<Button>(R.id.httpButtonReceive)
         val textView: TextView = findViewById<TextView>(R.id.textView) // Find the TextView by its ID
         var flag: Boolean =  false
 
@@ -301,8 +301,22 @@ class MainActivity : ComponentActivity() {
             Log.d("Tag", "http after")
         }*/
         // Set up a click listener for the button
-/*
-        httpButton.setOnClickListener {
+
+        Thread {
+            try {
+                httpServer = AndroidHttpServer()
+                httpServer.start(NanoHTTPD.SOCKET_READ_TIMEOUT, false)
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }.start()
+
+        // Example of sending a POST request to the server
+        val message = "Hello from Android!"
+        val postUrl = "http://localhost:8080/"
+        SendMessageTask().execute(postUrl, message)
+
+        httpButtonSend.setOnClickListener {
             val broadcastIpAddress = "192.168.2.43"
             val raspberryPiUrl = "http://$broadcastIpAddress:5000/receive_message"
             val message = "Hello from Android!"
@@ -312,8 +326,8 @@ class MainActivity : ComponentActivity() {
             task.execute(raspberryPiUrl, message)
         }
 
-*/
-        httpButton.setOnClickListener {
+
+        httpButtonReceive.setOnClickListener {
             val receiveInfoUrl = "http://192.168.2.43:5000/send_info"
 
             // Create an instance of ReceiveInfoTask and execute it
@@ -471,5 +485,41 @@ class ReceiveInfoTask : AsyncTask<String, Void, String>() {
         } else {
             Log.e("SendMessageTask", "Failed to Received message")
         }
+    }
+}
+
+class AndroidHttpServer : NanoHTTPD(8080) {
+
+    override fun serve(session: IHTTPSession): Response {
+        return when (session.method) {
+            Method.POST -> handlePostRequest(session)
+            Method.GET -> handleGetRequest(session)
+            else -> newFixedLengthResponse(Response.Status.METHOD_NOT_ALLOWED, MIME_PLAINTEXT, "Method not allowed")
+        }
+    }
+
+    private fun handlePostRequest(session: IHTTPSession): Response {
+        if ("/Receive" == session.uri) {
+            try {
+                val reader = session.inputStream.bufferedReader()
+                val response = reader.readText()
+                println("Response from server: $response")
+
+                return newFixedLengthResponse("Message received successfully")
+            } catch (e: IOException) {
+                e.printStackTrace()
+                Log.d("SendMessageTask", "ERRORRRRR")
+                return newFixedLengthResponse("Error handling POST request")
+            }
+        }
+        return newFixedLengthResponse("Error handling POST request")
+    }
+
+    private fun handleGetRequest(session: IHTTPSession): Response {
+        // Handle GET request
+        if ("/Send" == session.uri) {
+            return newFixedLengthResponse("Hello from NanoHTTPD")
+        }
+        return newFixedLengthResponse("Error handling GET request")
     }
 }

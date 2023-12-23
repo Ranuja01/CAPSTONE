@@ -25,7 +25,7 @@ def receive_message():
 def send_info():
     # Prepare the information to be sent
     
-    info_message = "asd123"
+    info_message = "AKJSDHKAJSDH"
 
     # You can customize the response format as needed
     response_data = {'status': 'success', 'info_message': info_message}

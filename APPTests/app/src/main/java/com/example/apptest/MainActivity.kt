@@ -27,6 +27,8 @@ import androidx.activity.result.ActivityResultLauncher
 import android.app.Activity
 import android.bluetooth.BluetoothSocket
 import android.content.pm.PackageManager
+import android.net.nsd.NsdManager
+import android.net.nsd.NsdServiceInfo
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -40,10 +42,16 @@ import java.io.OutputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import fi.iki.elonen.NanoHTTPD
+import org.json.JSONObject
+import java.io.BufferedReader
+import java.io.InputStream
+import java.io.InputStreamReader
 
 
 class MainActivity : ComponentActivity() {
     private lateinit var enableBluetoothLauncher: ActivityResultLauncher<Intent>
+    private lateinit var nsdManager: NsdManager
+    private lateinit var server: NanoHTTPD
 
     private val deviceDiscoveryReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -277,18 +285,23 @@ class MainActivity : ComponentActivity() {
         val textView: TextView = findViewById<TextView>(R.id.textView) // Find the TextView by its ID
         var flag: Boolean =  false
 
-        // Set up a click listener for the button
+        // Initialize NsdManager
+       // nsdManager = getSystemService(Context.NSD_SERVICE) as NsdManager
+
+        // Set up the discovery listener
+       // val discoveryListener = createDiscoveryListener()
+
+        // Set up NanoHTTPD server
+       // server = HttpServer()
+
         /*
         httpButton.setOnClickListener {
-            val raspberryPiUrl = "http://192.168.2.43:5000/receive_message"
-            //val raspberryPiUrl = "http://172.17.99.253:5000/receive_message"
-            // For the pico
-            //val raspberryPiUrl = "http://172.17.99.253:5000/receive_message"
-            val message = "Hello from Android!"
-            Log.d("Tag", "BEFORE")
-            SendMessageTask().execute(raspberryPiUrl, message)
-            Log.d("Tag", "AFTER")
+            Log.d("Tag", "http before")
+            startServiceDiscovery(discoveryListener)
+            Log.d("Tag", "http after")
         }*/
+        // Set up a click listener for the button
+/*
         httpButton.setOnClickListener {
             val broadcastIpAddress = "192.168.2.43"
             val raspberryPiUrl = "http://$broadcastIpAddress:5000/receive_message"
@@ -297,6 +310,23 @@ class MainActivity : ComponentActivity() {
             val task = SendMessageTask()
             //task.setContentType("application/json")
             task.execute(raspberryPiUrl, message)
+        }
+
+*/
+        httpButton.setOnClickListener {
+            val receiveInfoUrl = "http://192.168.2.43:5000/send_info"
+
+            // Create an instance of ReceiveInfoTask and execute it
+            val receiveInfoTask = ReceiveInfoTask()
+
+            // Set an onPostExecute listener to handle the result
+            receiveInfoTask.onPostExecuteListener = { message ->
+                // Update UI with the result here
+                textView.text = message
+                Log.d("Tag", message)
+            }
+            receiveInfoTask.execute(receiveInfoUrl)
+
         }
 
         btButton.setOnClickListener{
@@ -346,8 +376,9 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+
 }
-//sdfsdfsdf
+
 
 class SendMessageTask : AsyncTask<String, Void, Boolean>() {
 
@@ -394,6 +425,51 @@ class SendMessageTask : AsyncTask<String, Void, Boolean>() {
             Log.d("SendMessageTask", "Message sent successfully")
         } else {
             Log.e("SendMessageTask", "Failed to send message")
+        }
+    }
+}
+
+class ReceiveInfoTask : AsyncTask<String, Void, String>() {
+    // Define a listener for onPostExecute
+    var onPostExecuteListener: ((String) -> Unit)? = null
+
+    override fun doInBackground(vararg params: String): String {
+        val url = URL(params[0])
+        val urlConnection = url.openConnection() as HttpURLConnection
+
+        try {
+            urlConnection.requestMethod = "GET"
+            val responseCode = urlConnection.responseCode
+
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                // Read and process the response
+                val inputStream: InputStream = urlConnection.inputStream
+                val reader = BufferedReader(InputStreamReader(inputStream))
+                val response = reader.readText()
+                println("Response from server: $response")
+                return response
+            }
+
+            //responseCode == HttpURLConnection.HTTP_OK
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            urlConnection.disconnect()
+        }
+        return ""
+    }
+
+    override fun onPostExecute(response: String) {
+        if (response != null) {
+            Log.d("SendMessageTask", "Message Received successfully")
+            val jsonResponse = JSONObject(response)
+
+            // Extract the "info_message" value
+            val infoMessage = jsonResponse.getString("info_message")
+            onPostExecuteListener?.invoke(infoMessage)
+        } else {
+            Log.e("SendMessageTask", "Failed to Received message")
         }
     }
 }

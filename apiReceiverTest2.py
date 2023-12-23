@@ -1,43 +1,37 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Dec 22 01:06:13 2023
-
-@author: ranuj
-"""
-
-from zeroconf import Zeroconf, ServiceBrowser
+# Python code using zeroconf for service registration
+from zeroconf import Zeroconf, ServiceInfo
 from flask import Flask, request, jsonify
-import requests
 import socket
+app = Flask(__name__)
 
-class ServiceListener:
-    def remove_service(self, zeroconf, type, name):
-        print("Service {} removed".format(name))
+@app.route('/receive_message', methods=['GET'])
+def receive_message():
+    # Process the message as needed
+    print("RECEIVED!")
+    data = request.json
+    if data is None:
+        return jsonify({'error': 'Invalid JSON data'}), 400
 
-    def add_service(self, zeroconf, type, name):
-        info = zeroconf.get_service_info(type, name)
-        print("Service {} added, service info: {}".format(name, info))
+    message = data.get('message')
+    if message is None:
+        return jsonify({'error': 'Missing "message" in JSON data'}), 400
 
-        if info:
-            host_address = socket.inet_ntoa(info.address)
-            port = info.port
-            service_endpoint = "http://{}:{}/receive_message".format(host_address, port)
-            print("Service endpoint: {}".format(service_endpoint))
+    print(f'Received message: {message}')
+    return jsonify({'status': 'success'})
 
-            # Now you can use service_endpoint to interact with the Android service
-            # (e.g., send a message using requests)
-            
-
-            # Replace this with the actual service endpoint obtained from the script's output
-            #service_endpoint = "http://192.168.2.43:5000/receive_message"
-            
-            # Send a GET request to the discovered service endpoint
-            response = requests.get(f"{service_endpoint}")
-            
-            print(f"Response from Android service: {response.text}")
+if __name__ == '__main__':
+   # Specify the service information
+    service_info = ServiceInfo(
+        "_http._tcp.local.",  # service type
+        "FlaskService._http._tcp.local.",  # service name
+        port=8080,  # port (should be an integer)
+        properties={"ip": "192.168.2.54"},  # add IP address as a property
+    )
     
+    # Create a Zeroconf instance
+    zeroconf = Zeroconf()
+    
+    # Register the service
+    zeroconf.register_service(service_info)
 
-# Initialize zeroconf for service discovery
-zeroconf = Zeroconf()
-listener = ServiceListener()
-browser = ServiceBrowser(zeroconf, "_http._tcp.local.", listener)
+    app.run(host='0.0.0.0', port=5000)

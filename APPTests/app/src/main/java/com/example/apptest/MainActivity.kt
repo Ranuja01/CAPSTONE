@@ -283,6 +283,7 @@ class MainActivity : ComponentActivity() {
         val httpButtonSend: Button = findViewById<Button>(R.id.httpButtonSend)
         val httpButtonReceive: Button = findViewById<Button>(R.id.httpButtonReceive)
         val textView: TextView = findViewById<TextView>(R.id.textView) // Find the TextView by its ID
+        val deviceSetup: Button = findViewById<Button>(R.id.deviceSetup)
         var flag: Boolean =  false
 
         // Initialize NsdManager
@@ -312,9 +313,15 @@ class MainActivity : ComponentActivity() {
         }.start()
 
         // Example of sending a POST request to the server
+        /*
         val message = "Hello from Android!"
         val postUrl = "http://localhost:8080/"
         SendMessageTask().execute(postUrl, message)
+*/
+        deviceSetup.setOnClickListener {
+            val intent = Intent(this, NewDeviceSetup::class.java)
+            startActivity(intent)
+        }
 
         httpButtonSend.setOnClickListener {
             val broadcastIpAddress = "192.168.2.43"
@@ -328,17 +335,24 @@ class MainActivity : ComponentActivity() {
 
 
         httpButtonReceive.setOnClickListener {
-            val receiveInfoUrl = "http://192.168.2.43:5000/send_info"
-
+            //val receiveInfoUrl = "http://192.168.2.43:5000/send_info"
+            val receiveInfoUrl = "http://192.168.2.121/cm?cmnd=Power%20TOGGLE"
+            //192.168.2.121 - My House
+            // 192.168.1.102 - Andrew's House
+            //val receiveInfoUrl = "http://ezplug-8b4df5-3573/cm?cmnd=Power%20TOGGLE"
             // Create an instance of ReceiveInfoTask and execute it
             val receiveInfoTask = ReceiveInfoTask()
 
             // Set an onPostExecute listener to handle the result
+/*
             receiveInfoTask.onPostExecuteListener = { message ->
                 // Update UI with the result here
                 textView.text = message
                 Log.d("Tag", message)
             }
+
+            */
+
             receiveInfoTask.execute(receiveInfoUrl)
 
         }
@@ -394,132 +408,3 @@ class MainActivity : ComponentActivity() {
 }
 
 
-class SendMessageTask : AsyncTask<String, Void, Boolean>() {
-
-    override fun doInBackground(vararg params: String): Boolean {
-        val url = URL(params[0])
-        val message = params[1]
-        val urlConnection = url.openConnection() as HttpURLConnection
-        Log.d("Tag", "qwerty")
-        return try {
-            Log.d("Tag", "A")
-
-            urlConnection.requestMethod = "POST"
-            urlConnection.setRequestProperty("Content-Type", "application/json")
-            urlConnection.doOutput = true
-            Log.d("Tag", "B")
-            // Write the message to the request body
-            val outputStream: OutputStream = urlConnection.outputStream
-            val writer = BufferedWriter(OutputStreamWriter(outputStream, "UTF-8"))
-            writer.write("{\"message\":\"$message\"}")  // Construct the JSON string
-            writer.flush()
-            writer.close()
-
-
-            Log.d("Tag", "C")
-            val responseCode = urlConnection.responseCode
-            outputStream.flush()
-            outputStream.close()
-            Log.d("Tag", urlConnection.responseCode.toString())
-
-            responseCode == HttpURLConnection.HTTP_OK
-
-            //Log.d("Tag", "D")
-        } catch (e: Exception) {
-            Log.e("SendMessageTask", "Error sending message: ${e.message}", e)
-            false
-        }  finally {
-            urlConnection.disconnect()
-        }
-
-    }
-
-    override fun onPostExecute(result: Boolean) {
-        if (result) {
-            Log.d("SendMessageTask", "Message sent successfully")
-        } else {
-            Log.e("SendMessageTask", "Failed to send message")
-        }
-    }
-}
-
-class ReceiveInfoTask : AsyncTask<String, Void, String>() {
-    // Define a listener for onPostExecute
-    var onPostExecuteListener: ((String) -> Unit)? = null
-
-    override fun doInBackground(vararg params: String): String {
-        val url = URL(params[0])
-        val urlConnection = url.openConnection() as HttpURLConnection
-
-        try {
-            urlConnection.requestMethod = "GET"
-            val responseCode = urlConnection.responseCode
-
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                // Read and process the response
-                val inputStream: InputStream = urlConnection.inputStream
-                val reader = BufferedReader(InputStreamReader(inputStream))
-                val response = reader.readText()
-                println("Response from server: $response")
-                return response
-            }
-
-            //responseCode == HttpURLConnection.HTTP_OK
-
-        } catch (e: Exception) {
-            e.printStackTrace()
-        } finally {
-            urlConnection.disconnect()
-        }
-        return ""
-    }
-
-    override fun onPostExecute(response: String) {
-        if (response != null) {
-            Log.d("SendMessageTask", "Message Received successfully")
-            val jsonResponse = JSONObject(response)
-
-            // Extract the "info_message" value
-            val infoMessage = jsonResponse.getString("info_message")
-            onPostExecuteListener?.invoke(infoMessage)
-        } else {
-            Log.e("SendMessageTask", "Failed to Received message")
-        }
-    }
-}
-
-class AndroidHttpServer : NanoHTTPD(8080) {
-
-    override fun serve(session: IHTTPSession): Response {
-        return when (session.method) {
-            Method.POST -> handlePostRequest(session)
-            Method.GET -> handleGetRequest(session)
-            else -> newFixedLengthResponse(Response.Status.METHOD_NOT_ALLOWED, MIME_PLAINTEXT, "Method not allowed")
-        }
-    }
-
-    private fun handlePostRequest(session: IHTTPSession): Response {
-        if ("/Receive" == session.uri) {
-            try {
-                val reader = session.inputStream.bufferedReader()
-                val response = reader.readText()
-                println("Response from server: $response")
-
-                return newFixedLengthResponse("Message received successfully")
-            } catch (e: IOException) {
-                e.printStackTrace()
-                Log.d("SendMessageTask", "ERRORRRRR")
-                return newFixedLengthResponse("Error handling POST request")
-            }
-        }
-        return newFixedLengthResponse("Error handling POST request")
-    }
-
-    private fun handleGetRequest(session: IHTTPSession): Response {
-        // Handle GET request
-        if ("/Send" == session.uri) {
-            return newFixedLengthResponse("Hello from NanoHTTPD")
-        }
-        return newFixedLengthResponse("Error handling GET request")
-    }
-}

@@ -52,7 +52,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var enableBluetoothLauncher: ActivityResultLauncher<Intent>
     private lateinit var nsdManager: NsdManager
     private lateinit var server: NanoHTTPD
-    private lateinit var httpServer: AndroidHttpServer
+    //private lateinit var httpServer: AndroidHttpServer
 
     private val deviceDiscoveryReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -303,14 +303,12 @@ class MainActivity : ComponentActivity() {
         }*/
         // Set up a click listener for the button
 
-        Thread {
-            try {
-                httpServer = AndroidHttpServer()
-                httpServer.start(NanoHTTPD.SOCKET_READ_TIMEOUT, false)
-            } catch (e: IOException) {
-                e.printStackTrace()
+        HttpServerManager.startServer(object : MessageUpdateCallback {
+            override fun onMessageUpdated(newContent: String) {
+                // Handle the updated message content here
+                println("Updated message content: $newContent")
             }
-        }.start()
+        })
 
         // Example of sending a POST request to the server
         /*

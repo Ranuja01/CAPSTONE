@@ -6,14 +6,51 @@
     android:background="@color/background_color"
     tools:ignore="ExtraText">
 
-    <Button
-        android:id="@+id/toggleButton"
-        android:layout_width="wrap_content"
+    <EditText
+        android:id="@+id/editText1"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="150dp"
+        android:hint="Enter value 1" />
+
+    <EditText
+        android:id="@+id/editText2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/editText1"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="32dp"
+        android:hint="Enter value 2" />
+
+    <Button
+        android:id="@+id/ScanWifi"
+        android:layout_width="119dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
         android:layout_centerInParent="true"
+        android:layout_marginStart="144dp"
+        android:layout_marginTop="339dp"
         android:background="#d4af37"
-        android:text="Toggle Device"
-        android:textColor="@color/black"/>
+        android:text="Scan Wifi"
+        android:textColor="@color/black" />
+
+
+    <Button
+        android:id="@+id/submitButton"
+        android:layout_width="119dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_centerInParent="false"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="146dp"
+        android:layout_marginTop="399dp"
+        android:background="#d4af37"
+        android:text="Submit"
+        android:textColor="@color/black" />
 
 
 </RelativeLayout>

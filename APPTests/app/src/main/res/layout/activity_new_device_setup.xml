@@ -11,8 +11,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
-        android:layout_marginStart="4dp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="1dp"
         android:layout_marginTop="150dp"
+        android:layout_marginEnd="3dp"
         android:hint="Enter value 1" />
 
     <EditText
@@ -22,7 +24,7 @@
         android:layout_below="@id/editText1"
         android:layout_alignParentStart="true"
         android:layout_marginStart="0dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="8dp"
         android:hint="Enter value 2" />
 
     <Button
@@ -37,7 +39,6 @@
         android:text="Scan Wifi"
         android:textColor="@color/black" />
 
-
     <Button
         android:id="@+id/submitButton"
         android:layout_width="119dp"
@@ -50,6 +51,20 @@
         android:layout_marginTop="399dp"
         android:background="#d4af37"
         android:text="Submit"
+        android:textColor="@color/black" />
+
+    <Button
+        android:id="@+id/customMessageButton"
+        android:layout_width="119dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_centerInParent="false"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="146dp"
+        android:layout_marginTop="270dp"
+        android:background="#d4af37"
+        android:text="HTTP SEND"
         android:textColor="@color/black" />
 
 

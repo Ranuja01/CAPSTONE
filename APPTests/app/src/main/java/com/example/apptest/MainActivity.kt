@@ -310,12 +310,6 @@ class MainActivity : ComponentActivity() {
             }
         })
 
-        // Example of sending a POST request to the server
-        /*
-        val message = "Hello from Android!"
-        val postUrl = "http://localhost:8080/"
-        SendMessageTask().execute(postUrl, message)
-*/
         deviceSetup.setOnClickListener {
             val intent = Intent(this, NewDeviceSetup::class.java)
             startActivity(intent)

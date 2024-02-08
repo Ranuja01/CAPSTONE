@@ -1,4 +1,5 @@
 import network
+import socket
 from time import sleep
 from picozero import pico_led
 import machine
@@ -55,3 +56,22 @@ def connect(ssid, password):
     ip = wlan.ifconfig()[0]
     print(f'Connected on {ip}')
     return ip
+
+def open_socket(ip):
+    # Open a socket
+    address = (ip, 80) # 80 <- Port Number
+    connection = socket.socket()
+    connection.bind(address)
+    connection.listen(1)
+    return connection
+
+def parseRequest(connection):
+    client = connection.accept()[0]
+    request = client.recv(1024)
+    request = str(request)
+    print(request.split()[1])
+    try:
+        request = request.split()[1] # Request has format http://{IP}/poweron?
+    except IndexError:
+        pass
+    return client, request

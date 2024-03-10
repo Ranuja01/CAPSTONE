@@ -7,12 +7,6 @@ import machine
 CONN_RESET_COUNT = 5
 TIMEOUT_COUNT = 2
 
-def led_blink():
-    '''Blinks the LED'''
-    pico_led.on()
-    sleep(0.1)
-    pico_led.off()
-    sleep(0.1)
 
 def setupWifiInfo(useExisting):
     ''' Determines whether wifi information is input or read from a file '''
@@ -35,18 +29,14 @@ def setupWifiInfo(useExisting):
     return ssid, password
 
 
-def APModeSetup(ip, ap):
-    '''Turns on AP mode in powersaving for the phone to access '''
-    ap = network.WLAN(network.AP_IF)
-    ap.config(ssid = "PlugPico", password = "Capstone", pm = network.WLAN.PM_POWERSAVE)
-    ap.active(True)
-    ip = ap.ifconfig()[0]
-    return ip, ap
-
-def APModeDisconnect(ap):
-    ''' Turns off AP Mode '''
-    ap.active(False)
-    return
+def findSSID(wlan, ssid_part):
+    ''' Finds the SSID of the network that contains the input string '''
+    networks = wlan.scan()
+    print("Networks:", networks)
+    for net in networks:
+        if ssid_part in net[0]:
+            return net[0].decode('utf-8')
+    return 0
 
 
 def connectWifi(ssid, password):
@@ -74,5 +64,28 @@ def connectWifi(ssid, password):
     ip = wlan.ifconfig()[0]
     
     print(f'Connected on {ip}')
-    return ip
+    return wlan, ip
 
+
+def APModeSetup():
+    '''Turns on AP mode in powersaving for the phone to access '''
+    ap = network.WLAN(network.AP_IF)
+    ap.config(ssid = "PlugPico", password = "Capstone", pm = network.WLAN.PM_POWERSAVE)
+    ap.active(True)
+    ip = ap.ifconfig()[0]
+    print(f"AP Mode Enabled, connected on {ip}")
+    return ip, ap
+
+
+def APModeDisconnect(ap):
+    ''' Turns off AP Mode '''
+    ap.active(False)
+    return
+
+
+def led_blink():
+    '''Blinks the LED'''
+    pico_led.on()
+    sleep(0.1)
+    pico_led.off()
+    sleep(0.1)

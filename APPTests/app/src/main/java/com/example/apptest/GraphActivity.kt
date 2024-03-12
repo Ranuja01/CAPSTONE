@@ -3,6 +3,7 @@ package com.example.apptest
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.AxisBase
@@ -14,6 +15,10 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.ValueFormatter
 import java.util.*
 import kotlin.math.sin
+import kotlin.math.cos
+import kotlin.math.tan
+import kotlin.math.exp
+
 
 class GraphActivity : AppCompatActivity() {
 
@@ -24,6 +29,10 @@ class GraphActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val tcpClient = TcpClient()
+        tcpClient.sendMessage("graph", "192.168.1.111", 50000)
+
         setContentView(R.layout.activity_graph)
 
         lineChart = findViewById(R.id.lineChart)
@@ -69,13 +78,20 @@ class GraphActivity : AppCompatActivity() {
     private fun updateGraph() {
         // Update xValue and calculate yValue for sin(x)
         xValue += 0.1f
-        val yValue = 2*sin(xValue.toDouble()).toFloat()
+        //val yValue = tan(tan(tan(xValue.toDouble()))).toFloat()
+        //val yValue = exp(xValue.toDouble() * 0.05).toFloat()* sin(xValue.toDouble()).toFloat()
+        val tcpClient = TcpClient()
+        var yValue = 0.0.toFloat()
+        while(dataObject.isNull()){
+
+        }
+        yValue = dataObject.curData?.toFloat() ?: 0.0f
 
         // Add the new data entry
         dataEntries.add(Entry(xValue, yValue))
 
         // Limit the number of entries to prevent memory issues
-        if (dataEntries.size > 100) {
+        if (dataEntries.size > 600) {
             dataEntries.removeAt(0)
         }
 

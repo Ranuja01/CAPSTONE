@@ -28,15 +28,9 @@ class NewDeviceSetup2 : AppCompatActivity() {
 
         nextButton.setOnClickListener {
             //val broadcastIpAddress = "192.168.2.20"
-            val broadcastIpAddress = "192.168.2.43"
-            //val broadcastIpAddress = "172.18.148.119"
-            val raspberryPiUrl = "http://$broadcastIpAddress:5000/receive_message"
-            val value1 = editText1.text.toString()
-            val message = "Hello from Android!"
-
-            val task = SendMessageTask()
-            //task.setContentType("application/json")
-            task.execute(raspberryPiUrl, value1)
+            val broadcastIpAddress = "192.168.1.111"
+            val tcpClient = TcpClient()
+            tcpClient.sendMessage("toggle", broadcastIpAddress, 50000)
 
             Toast.makeText(this, "Plug added successfully! (Returning to main page shortly...)", Toast.LENGTH_SHORT).show()
             Thread.sleep(5000)

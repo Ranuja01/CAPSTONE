@@ -20,6 +20,7 @@ class NewDeviceSetup2 : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val myFileManager = FileManager(this,"data.txt")
         setContentView(R.layout.activity_new_device_setup2)
         Log.d("Tag", "afq3242qaef")
 
@@ -28,10 +29,11 @@ class NewDeviceSetup2 : AppCompatActivity() {
 
         nextButton.setOnClickListener {
             //val broadcastIpAddress = "192.168.2.20"
+            val value1 = editText1.text.toString()
             val broadcastIpAddress = "192.168.1.111"
             val tcpClient = TcpClient()
-            tcpClient.sendMessage("toggle", broadcastIpAddress, 50000)
-
+            tcpClient.sendMessage(value1, broadcastIpAddress, 50000)
+            myFileManager.saveData(value1)
             Toast.makeText(this, "Plug added successfully! (Returning to main page shortly...)", Toast.LENGTH_SHORT).show()
             Thread.sleep(5000)
             val intent = Intent(this, MainActivity::class.java)

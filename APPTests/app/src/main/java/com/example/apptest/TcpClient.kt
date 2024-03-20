@@ -11,7 +11,7 @@ import java.util.concurrent.CountDownLatch
 
 class TcpClient {
 
-    fun sendMessage(message: String, ipAddress: String, port: Int) {
+    fun getGraphData(message: String, ipAddress: String, port: Int) {
 
         var currentValue: Double? = null
         Thread {
@@ -46,22 +46,6 @@ class TcpClient {
                     }
                 }
 
-                /*
-
-
-                 val responseStringBuilder = StringBuilder()
-                var char: Int
-                while (reader.read().also { char = it } != -1) {
-                    responseStringBuilder.append(char.toChar())
-                    // Check if the received character indicates the end of the response
-                    if (char.toChar() == '\n') {
-                        break
-                    }
-                }
-                val response = responseStringBuilder.toString().trim()
-                 */
-
-
                 Log.d("Tag", "DD3")
                 // Assuming 'response' is a list of strings
                /* response.forEachIndexed { index, line ->
@@ -71,7 +55,38 @@ class TcpClient {
 
                 Log.d("Tag", "DD")
 
+            } catch (e: Exception) {
+                Log.d("Tag", "EE")
+                e.printStackTrace()
+            }
+        }.start()
+    }
 
+    fun sendMessage(message: String, ipAddress: String, port: Int) {
+
+        var currentValue: Double? = null
+        Thread {
+            try {
+                Log.d("Tag", "BB")
+                // Create a socket with the given IP address and port number
+                val socket = Socket(ipAddress, port)
+
+                // Get the output stream of the socket
+                val outputStream = socket.getOutputStream()
+
+                // Write the message to the output stream
+                val writer = OutputStreamWriter(outputStream)
+                writer.write(message)
+                writer.flush()
+
+                Log.d("Tag", "DD3")
+                // Assuming 'response' is a list of strings
+                /* response.forEachIndexed { index, line ->
+                     Log.d("TcpClient", "Response line $index: $line")
+
+                 }*/
+
+                Log.d("Tag", "DD")
 
             } catch (e: Exception) {
                 Log.d("Tag", "EE")
@@ -102,6 +117,4 @@ object dataObject {
     fun isNull(): Boolean {
         return curData == null
     }
-
-
 }

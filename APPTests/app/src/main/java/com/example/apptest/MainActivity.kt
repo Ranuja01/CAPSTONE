@@ -23,61 +23,75 @@ import java.io.IOException
 import java.util.UUID
 import fi.iki.elonen.NanoHTTPD
 
-
 class MainActivity : ComponentActivity() {
-    private lateinit var nsdManager: NsdManager
-    private lateinit var server: NanoHTTPD
-    //private lateinit var httpServer: AndroidHttpServer
+    //private lateinit var nsdManager: NsdManager
+    //private lateinit var httpServer: AndroidHttpServer-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        Log.d("Tag", "afq3242qaef")
 
-        val button: Button = findViewById<Button>(R.id.toggleButton)
-        val tcpButton: Button = findViewById<Button>(R.id.TCPButton) // Find the button by its ID
-        val httpButtonSend: Button = findViewById<Button>(R.id.httpButtonSend)
-        val httpButtonReceive: Button = findViewById<Button>(R.id.httpButtonReceive)
-        val textView: TextView = findViewById<TextView>(R.id.textView) // Find the TextView by its ID
-        val deviceSetup: Button = findViewById<Button>(R.id.deviceSetup)
-        val graphing: Button = findViewById<Button>(R.id.graphButton)
-        var flag: Boolean =  false
+        Log.d("Tag", "Start Main")
 
-        // Initialize NsdManager
-       // nsdManager = getSystemService(Context.NSD_SERVICE) as NsdManager
+        // Create file on the mobile device for storing plug IP address
+        val myFileManager = FileManager(this,"data.txt")
 
-        // Set up the discovery listener
-       // val discoveryListener = createDiscoveryListener()
+        val toggle: Button = findViewById<Button>(R.id.toggle) // Button for toggling device
+        val deviceSetup: Button = findViewById<Button>(R.id.deviceSetup) // Button to trigger device setup
+        val schedule: Button = findViewById<Button>(R.id.schedulingButton) // Button to trigger scheduling
+        val graphing: Button = findViewById<Button>(R.id.graphButton) // Button to trigger current graphing
+        //val tcpButton: Button = findViewById<Button>(R.id.TCPButton)
+        //val httpButtonSend: Button = findViewById<Button>(R.id.httpButtonSend)
+        //val httpButtonReceive: Button = findViewById<Button>(R.id.httpButtonReceive)
+        //val textView: TextView = findViewById<TextView>(R.id.textView)
+        //var flag: Boolean =  false
 
-        // Set up NanoHTTPD server
-       // server = HttpServer()
+        // Start the HTTP Server
+        HttpServerManager.startServer()
 
-        /*
-        httpButton.setOnClickListener {
-            Log.d("Tag", "http before")
-            startServiceDiscovery(discoveryListener)
-            Log.d("Tag", "http after")
-        }*/
-        // Set up a click listener for the button
+        // Schedule button listener
+        schedule.setOnClickListener {
+            val intent = Intent(this, ScheduleDevice::class.java)
+            startActivity(intent)
+        }
 
-        HttpServerManager.startServer(object : MessageUpdateCallback {
-            override fun onMessageUpdated(newContent: String) {
-                // Handle the updated message content here
-                println("Updated message content: $newContent")
-            }
-        })
-
+        // Graph button listener
         graphing.setOnClickListener {
             val intent = Intent(this, GraphActivity::class.java)
             startActivity(intent)
         }
 
+        // Device setup listener
         deviceSetup.setOnClickListener {
             val intent = Intent(this, NewDeviceSetup1::class.java)
             startActivity(intent)
         }
 
-        httpButtonSend.setOnClickListener {
+        // Device toggle button listener
+        toggle.setOnClickListener {
+
+            // Read the data containing the ip address of the plug
+            val dataRead = myFileManager.readData()
+            if (dataRead != "null") { // Check if the read data is not null
+                Log.d("Tag","Data read from file: $dataRead")
+            } else {
+                Log.d("Tag","No data found in file")
+                var dataToSave = "192.168.2.121"
+                myFileManager.saveData(dataToSave)
+            }
+            // Create the toggle request
+            var broadcastIpAddress = myFileManager.readData()
+            val receiveInfoUrl = "http://$broadcastIpAddress/cm?cmnd=Power%20TOGGLE"
+            //192.168.2.121 - My House
+            // 192.168.1.102 - Andrew's House http://PicoPlug/cm?cmnd=Power%20TOGGLE
+
+            // Create an instance of ReceiveInfoTask and execute it
+            val receiveInfoTask = ReceiveInfoTask()
+            receiveInfoTask.execute(receiveInfoUrl)
+
+        }
+
+     /*   httpButtonSend.setOnClickListener {
             val broadcastIpAddress = "192.168.2.43"
             val raspberryPiUrl = "http://$broadcastIpAddress:5000/receive_message"
             val message = "Hello from Android!"
@@ -86,40 +100,15 @@ class MainActivity : ComponentActivity() {
             //task.setContentType("application/json")
             task.execute(raspberryPiUrl, message)
         }
+*/
 
-
-        httpButtonReceive.setOnClickListener {
-            //val receiveInfoUrl = "http://192.168.2.43:5000/send_info"
-            val receiveInfoUrl = "http://PicoPlug/cm?cmnd=Power%20TOGGLE"
-            //192.168.2.121 - My House
-            // 192.168.1.102 - Andrew's House
-            //val receiveInfoUrl = "http://ezplug-8b4df5-3573/cm?cmnd=Power%20TOGGLE"
-            // Create an instance of ReceiveInfoTask and execute it
-            val receiveInfoTask = ReceiveInfoTask()
-
-            // Set an onPostExecute listener to handle the result
 /*
-            receiveInfoTask.onPostExecuteListener = { message ->
-                // Update UI with the result here
-                textView.text = message
-                Log.d("Tag", message)
-            }
-
-            */
-
-            receiveInfoTask.execute(receiveInfoUrl)
-
-        }
-
         tcpButton.setOnClickListener{
             // Update the text of the TextView when the button is clicked
             Log.d("Tag", "AA")
             val tcpClient = TcpClient()
             tcpClient.sendMessage("graph", "192.168.1.111", 50000)
             Log.d("Tag", "CC")
-
-
-
         }
 
         // Set up a click listener for the button
@@ -134,7 +123,7 @@ class MainActivity : ComponentActivity() {
                 textView.text = "Button Unclicked!"
                 flag = false
             }
-        }
+        }*/
     }
 
     override fun onDestroy() {

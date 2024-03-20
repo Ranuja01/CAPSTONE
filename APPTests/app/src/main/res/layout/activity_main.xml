@@ -6,79 +6,81 @@
     android:background="@color/background_color"
     tools:ignore="ExtraText">
 
+    <!--
+        <Button
+            android:id="@+id/httpButtonSend"
+            android:layout_width="105dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginStart="153dp"
+            android:layout_marginTop="120dp"
+            android:background="#d4af37"
+            android:text="HTTP Send"
+            android:textColor="@color/black"/>
+
+        <Button
+            android:id="@+id/toggleButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerInParent="true"
+            android:layout_marginTop="339dp"
+            android:background="#d4af37"
+            android:text="Toggle Device"
+            android:textColor="@color/black"/>
+
+            <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize = "50dp"
+            android:textColor="@color/white"
+            android:layout_below="@id/toggleButton"
+            android:layout_centerHorizontal="true"
+            android:paddingTop="16dp" />
+
+            <TextView
+            android:id="@+id/btList"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="34dp"
+            android:layout_marginBottom="135dp"
+            android:text="BTList: "
+            android:textColor="@color/white" />
+
+    -->
 
     <Button
-        android:id="@+id/httpButtonSend"
-        android:layout_width="105dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginStart="153dp"
-        android:layout_marginTop="120dp"
-        android:background="#d4af37"
-        android:text="HTTP Send"
-        android:textColor="@color/black"/>
-
-    <Button
-        android:id="@+id/toggleButton"
+        android:id="@+id/schedulingButton"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerInParent="true"
-        android:layout_marginTop="339dp"
-        android:background="#d4af37"
-        android:text="Toggle Device"
-        android:textColor="@color/black"/>
-
-    <Button
-        android:id="@+id/TCPButton"
-        android:layout_width="106dp"
-        android:layout_height="wrap_content"
+        android:layout_height="59dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_centerInParent="false"
         android:layout_centerHorizontal="true"
-        android:layout_marginStart="152dp"
-        android:layout_marginTop="267dp"
+        android:layout_marginStart="241dp"
+        android:layout_marginTop="241dp"
         android:background="#d4af37"
-        android:text="TCP"
-        android:textColor="@color/black"/>
-
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textSize = "50dp"
-        android:textColor="@color/white"
-        android:layout_below="@id/toggleButton"
-        android:layout_centerHorizontal="true"
-        android:paddingTop="16dp" />
-
-    <TextView
-        android:id="@+id/btList"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="34dp"
-        android:layout_marginBottom="135dp"
-        android:text="BTList: "
-        android:textColor="@color/white" />
+        android:text="Schedule"
+        android:textColor="@color/black" />
 
     <Button
-        android:id="@+id/httpButtonReceive"
+        android:id="@+id/toggle"
         android:layout_width="105dp"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginStart="152dp"
-        android:layout_marginTop="198dp"
+        android:layout_marginStart="80dp"
+        android:layout_marginTop="241dp"
         android:background="#d4af37"
-        android:text="HTTP Receive"
-        android:textColor="@color/black"/>
+        android:text="Toggle Device"
+        android:textColor="@color/black" />
 
     <Button
         android:id="@+id/deviceSetup"
@@ -87,11 +89,11 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginStart="154dp"
-        android:layout_marginTop="416dp"
+        android:layout_marginStart="80dp"
+        android:layout_marginTop="351dp"
         android:background="#d4af37"
         android:text="Device Setup"
-        android:textColor="@color/black"/>
+        android:textColor="@color/black" />
 
     <Button
         android:id="@+id/graphButton"
@@ -100,10 +102,10 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginStart="152dp"
-        android:layout_marginTop="486dp"
+        android:layout_marginStart="241dp"
+        android:layout_marginTop="351dp"
         android:background="#d4af37"
-        android:text="Graph"
+        android:text="Graph Current"
         android:textColor="@color/black" />
 
 </RelativeLayout>

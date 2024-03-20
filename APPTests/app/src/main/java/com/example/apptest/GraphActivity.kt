@@ -19,7 +19,7 @@ import kotlin.math.cos
 import kotlin.math.tan
 import kotlin.math.exp
 
-
+// Class for graphing current
 class GraphActivity : AppCompatActivity() {
 
     private lateinit var lineChart: LineChart
@@ -29,12 +29,13 @@ class GraphActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val tcpClient = TcpClient()
-        tcpClient.sendMessage("graph", "192.168.1.111", 50000)
-
         setContentView(R.layout.activity_graph)
+        val tcpClient = TcpClient()
 
+        // Call the function to read graph data from the microcontroller
+        tcpClient.getGraphData("graph", "192.168.1.111", 50000)
+
+        // Define the line chart
         lineChart = findViewById(R.id.lineChart)
 
         // Configure line chart
@@ -80,13 +81,12 @@ class GraphActivity : AppCompatActivity() {
         xValue += 0.1f
         //val yValue = tan(tan(tan(xValue.toDouble()))).toFloat()
         //val yValue = exp(xValue.toDouble() * 0.05).toFloat()* sin(xValue.toDouble()).toFloat()
-        val tcpClient = TcpClient()
         var yValue = 0.0.toFloat()
         while(dataObject.isNull()){
 
         }
         yValue = dataObject.curData?.toFloat() ?: 0.0f
-
+        dataObject.reset()
         // Add the new data entry
         dataEntries.add(Entry(xValue, yValue))
 
@@ -96,7 +96,7 @@ class GraphActivity : AppCompatActivity() {
         }
 
         // Update the line chart data
-        val dataSet = LineDataSet(dataEntries, "2Sin(x)")
+        val dataSet = LineDataSet(dataEntries, "Current")
         dataSet.color = Color.BLUE
         dataSet.setDrawCircles(false)
         dataSet.setDrawValues(false)

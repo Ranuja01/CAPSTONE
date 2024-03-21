@@ -45,4 +45,5 @@
     </string>
     <string name="title_activity_new_device_setup2">NewDeviceSetup2</string>
     <string name="title_activity_graph">GraphActivity</string>
+    <string name="title_activity_schedule_device">ScheduleDevice</string>
 </resources>

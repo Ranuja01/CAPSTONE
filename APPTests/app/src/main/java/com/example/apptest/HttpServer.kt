@@ -3,14 +3,12 @@ package com.example.apptest
 import fi.iki.elonen.NanoHTTPD
 import java.io.IOException
 
-interface MessageUpdateCallback {
-    fun onMessageUpdated(newContent: String)
-}
-
-class AndroidHttpServer(private val callback: MessageUpdateCallback) : NanoHTTPD(8080) {
+// Class to define the HTTP Server
+class AndroidHttpServer() : NanoHTTPD(8080) {
 
     private var messageContent = "Hello From Ranuja"
 
+    // function to serve the request
     override fun serve(session: IHTTPSession): Response {
         return when (session.method) {
             Method.POST -> handlePostRequest(session)
@@ -19,6 +17,7 @@ class AndroidHttpServer(private val callback: MessageUpdateCallback) : NanoHTTPD
         }
     }
 
+    // POST request to send data to the server
     private fun handlePostRequest(session: IHTTPSession): Response {
         if ("/Receive" == session.uri) {
             try {
@@ -38,6 +37,7 @@ class AndroidHttpServer(private val callback: MessageUpdateCallback) : NanoHTTPD
         return newFixedLengthResponse("Error handling POST request")
     }
 
+    // GET request to get data from the server
     private fun handleGetRequest(session: IHTTPSession): Response {
         // Handle GET request
         if ("/Send" == session.uri) {
@@ -51,15 +51,16 @@ class AndroidHttpServer(private val callback: MessageUpdateCallback) : NanoHTTPD
     fun updateMessageContent(newContent: String) {
         messageContent = newContent
         // Notify the callback about the updated message content
-        callback.onMessageUpdated(messageContent)
+        //callback.onMessageUpdated(messageContent)
     }
 }
 
+// Global object to store the server instance
 object HttpServerManager {
     private var httpServer: AndroidHttpServer? = null
 
-    fun startServer(callback: MessageUpdateCallback) {
-        httpServer = AndroidHttpServer(callback)
+    fun startServer() {
+        httpServer = AndroidHttpServer()
 
         Thread {
             try {

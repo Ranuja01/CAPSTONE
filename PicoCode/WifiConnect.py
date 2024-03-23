@@ -4,7 +4,7 @@ from time import sleep
 from picozero import pico_led
 import machine
 
-CONN_RESET_COUNT = 5
+CONN_RESET_COUNT = 10
 TIMEOUT_COUNT = 2
 
 
@@ -48,7 +48,7 @@ def connectWifi(ssid, password):
         wlan.active(True)
         wlan.connect(ssid,password)
         attemptcount = 0
-        while wlan.isconnected() == False and attemptcount < 10:
+        while wlan.isconnected() == False and attemptcount < CONN_RESET_COUNT:
               print('Waiting for connection...')
               led_blink() # Shows user device is not connected
               sleep(1)
@@ -56,8 +56,9 @@ def connectWifi(ssid, password):
         timecount += 1
     # Device was unable to connect to the given wifi signal
     if(timecount == TIMEOUT_COUNT):
+        wlan.active(False)
         print("Unable to connect.")
-        return -1
+        return -1, -1
     # Double blink to show device is connected
     led_blink()
     led_blink()

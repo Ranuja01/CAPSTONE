@@ -9,7 +9,7 @@ def openSocket(ip, isBlocking):
     connection.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) 
     connection.setblocking(isBlocking)   # Set to Non-blocking 
     connection.bind(address)
-    connection.listen(1)            # Max. 1 connection at a time
+    connection.listen(5)            # Max. 5 connections at a time
     return connection
 
 def receiveTCPConn(connection):
@@ -19,7 +19,6 @@ def receiveTCPConn(connection):
         print(f"Connected to {addr}")
         request = client.recv(1024)
         request = request.decode('utf-8')
-        print(request)
     except OSError:
         pass
     return client, request

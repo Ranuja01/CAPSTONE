@@ -16,17 +16,17 @@ def getVoltCurr(ip):
         # Extracts the voltage and current readings
         voltage = resdict['StatusSNS']['ENERGY']['Voltage']
         current = resdict['StatusSNS']['ENERGY']['Current']
-    except OSError:
-        print("Unable to read voltage or current.")
+    except OSError as e:
+        print("Unable to read voltage or current. Error:", e)
         voltage = -1
         current = -1
     return voltage, current
 
-def setPower(command):
+def setPower(command, ip):
     ''' Toggle the smart plug power '''
     try:
-        response = requests.get(url=f'http://{hostname}/cm?cmnd=Power%20{command}')
-    except:
-        print("Could not toggle power")
+        response = requests.get(url=f'http://{ip}/cm?cmnd=Power%20{command}')
+    except OSError as e:
+        print("Could not change power. Error:", e)
         return ""
     return response.text

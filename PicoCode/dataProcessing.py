@@ -2,7 +2,6 @@
 import PlugCommands as plug
 from time import sleep
 
-
 def readCurrents(hostname):
     # Array of current values and kepeing track of the end 
     currVals = 10*[0.0]

@@ -7,7 +7,7 @@ Created on Sat Mar 23 10:15:42 2024
 from time import sleep
 
 import requests
-
+#asdasdas
 def getVoltCurr(ip):
     ''' Reads the voltage and current information from the plug '''
     try:

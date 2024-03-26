@@ -1,12 +1,14 @@
 # Andrew Gurges Capstone Code
+import machine
+from time import sleep
+import select
+import _thread
+import gc
+
 import WifiConnect as wc
 import PlugCommands as plug
 import DataProcessing as dataproc
 import TCPServ
-import machine
-from time import sleep
-import _thread
-import gc
 
 # ssid = 'ssid'
 # password = 'password'
@@ -15,13 +17,7 @@ hostname = 'PicoPlug'
 lock = _thread.allocate_lock()
 
 def processData():
-    gc.collect()
-    print("Data Memory Allocated =", gc.mem_alloc())
-    print("Data Memory Free =", gc.mem_free())
-    
     while(True):
-        #if(input("Turn on plug? (Y/N)") == "Y"):
-            #plug.setPower("ON", hostname)
         # Array of current values and kepeing track of the end 
         currVals = 10*[0.0]
         end = 0
@@ -82,55 +78,80 @@ def processData():
 
 
 def processTCPRequests(ip):
-    # Open a socket for http requests
-    #connection = httpr.open_socket(ip)
-    gc.collect()
-    print("TCP Memory Allocated =", gc.mem_alloc())
-    print("TCP Memory Free =", gc.mem_free())
+    isBlocking = False
     
-    connection = TCPServ.openSocket(ip, isBlocking = True)
+    # Open the socket that acts as the server
+    connection = TCPServ.openSocket(ip, isBlocking)
+    
+    # Create a poll object to contain the connected clients
+    clientlist = select.poll()
+    
     state = 'OFF'
     while(True):
-        # Connect to the Phone's IP
-        # res = requests.get(url=f'http://{phoneIP}:8080/Send')
-        # client, request = httpr.parseRequest(connection)
+        # Add any new clients that would like to connect
         try:
-            client, request = TCPServ.receiveTCPConn(connection)
-            print(request)
-            lock.acquire()
-            if request == 'toggle':
-                plug.setPower('TOGGLE', hostname)
-                if(state == 'ON'):
-                    state == 'OFF'
-                else:
-                    state == 'ON'
-            elif request == 'on':
-                plug.setPower('ON', hostname)
-                state = 'ON'
-            elif request == 'off':
-                plug.setPower('OFF', hostname)
-                state = 'OFF'
-            elif request == 'getstate':
-                client.sendall(state.encode('utf-8'))
-            elif request == 'getcurr':
-                voltage, current = plug.getVoltCurr(hostname)
-                client.sendall(f"{current}".encode('utf-8'))
-            elif request == 'getvolt':
-                voltage, current = plug.getVoltCurr(hostname)
-                client.sendall(f"{voltage}".encode('utf-8'))
-            elif request == 'graph':
-                for i in range(60):
-                    #graphclient, graphaddr = connection.accept()
-                    current = plug.getVoltCurr(hostname)[1]
-                    client.sendall(f"{current}\n".encode('utf-8'))
-                    print(current)
-                    #graphclient.close()
-            lock.release()
-            print("closing connection... ")
-            client.sendall("FIN\n".encode('utf-8'))
-            client.close()
-        except OSError:
-            print("OSError, Connection reset?")    
+            client, addr = connection.accept()
+            client.setblocking(isBlocking)
+            clientlist.register(client)
+            print(f"Connected to {addr}")
+        except OSError as e:
+            pass
+        
+        # Check which clients are ready to be read from
+        ready_to_read = clientlist.poll(1)
+        for ready_client in ready_to_read:
+            client = ready_client[0]
+            # Service all available clients
+            try:
+                request = client.recv(1024)
+                if not request:
+                    print("Client exited. closing...")
+                    clientlist.unregister(client)
+                    client.close()
+                    continue
+                # Check which command was entered
+                #lock.acquire()
+                request = request.decode('utf-8')
+                print("Request:", request)
+                if request == 'toggle':
+                    plug.setPower('TOGGLE', hostname)
+                    if(state == 'ON'):
+                        state = 'OFF'
+                    else:
+                        state = 'ON'
+                elif request == 'on':
+                    plug.setPower('ON', hostname)
+                    state = 'ON'
+                elif request == 'off':
+                    plug.setPower('OFF', hostname)
+                    state = 'OFF'
+                elif request == 'getstate':
+                    client.sendall(state.encode('utf-8'))
+                elif request == 'getcurr':
+                    voltage, current = plug.getVoltCurr(hostname)
+                    client.sendall(f"{current}".encode('utf-8'))
+                elif request == 'getvolt':
+                    voltage, current = plug.getVoltCurr(hostname)
+                    client.sendall(f"{voltage}".encode('utf-8'))
+                elif 'time' in request:
+                    times = request.split(' ')
+                    start = int(times[1])
+                    end = int(times[2])
+                    print("Start:", start, "End:", end)
+                elif request == 'graph':
+                    for i in range(60):
+                        #graphclient, graphaddr = connection.accept()
+                        current = plug.getVoltCurr(hostname)[1]
+                        client.sendall(f"{current}\n".encode('utf-8'))
+                        print(current)
+                        #graphclient.close()
+                #lock.release()
+            except OSError as e:
+                pass
+            
+            #print("closing connection... ")
+            #client.sendall("FIN\n".encode('utf-8'))
+            #client.close()
 
 def wifiSetup():
     ip = -1
@@ -179,14 +200,10 @@ if __name__ == '__main__':
         ip = wifiSetup()
         gc.enable()
         gc.collect()
-        print("Memory Allocated =", gc.mem_alloc())
-        print("Memory Free =", gc.mem_free())
-        print("Stack Size =", _thread.stack_size(4096))
         #DataProcessingThread = _thread.start_new_thread(processData, ())
-        TCPRequestThread = _thread.start_new_thread(processTCPRequests, (ip,))
-        processData()
-        #processTCPRequests(ip)
-        
+        #TCPRequestThread = _thread.start_new_thread(processTCPRequests, (ip,))
+        #processData()
+        processTCPRequests(ip)
 
     except KeyboardInterrupt:
         print("Keyboard Interrupt Received. Exiting...")
